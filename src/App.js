@@ -1,25 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.jsx
+import React, { useState } from "react";
+import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
+import { startOfToday } from "date-fns";
 
-function App() {
+import eventsReducer from "./redux/eventsSlice";
+import Header from "./components/Header";
+import CalendarMonth from "./components/CalendarMonth";
+import CalendarLayout from "./components/CalendarLayout";
+
+const store = configureStore({
+  reducer: {
+    events: eventsReducer,
+  },
+});
+
+const App = () => {
+  const [currentDate, setCurrentDate] = useState(startOfToday());
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <Provider store={store}>
+      <div className="h-screen w-screen flex flex-col bg-gray-950 text-white">
+        {/* <Header /> */}
+        <CalendarLayout
+          currentDate={currentDate}
+          setCurrentDate={setCurrentDate}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <CalendarMonth currentDate={currentDate} />
+        </CalendarLayout>
+      </div>
+    </Provider>
   );
-}
+};
 
 export default App;
