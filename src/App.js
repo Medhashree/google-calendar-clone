@@ -5,7 +5,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import { startOfToday } from "date-fns";
 
 import eventsReducer from "./redux/eventsSlice";
-import Header from "./components/Header";
 import CalendarMonth from "./components/CalendarMonth";
 import CalendarLayout from "./components/CalendarLayout";
 
@@ -21,7 +20,6 @@ const App = () => {
   return (
     <Provider store={store}>
       <div className="h-screen w-screen flex flex-col bg-gray-950 text-white">
-        {/* <Header /> */}
         <CalendarLayout
           currentDate={currentDate}
           setCurrentDate={setCurrentDate}

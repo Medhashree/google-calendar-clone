@@ -1,12 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { format } from 'date-fns';
+import TaskModal from './TaskModal';
+import AddEvents from './AddEvents';
 
 const EventModal = ({ isOpen, onClose, events, date }) => {
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [isAddEventsOpen, setIsAddEventsOpen] = useState(false);
+  const [activeEvent, setActiveEvent] = useState({});
+
   if (!isOpen) return null;
 
+  const isTaskOpen = (event) => {
+    setIsTaskModalOpen(true);
+    setActiveEvent(event);
+  }
+
+  const openAddEvent = (event) => {
+    setIsTaskModalOpen(false);
+    setActiveEvent(event);
+    setIsAddEventsOpen(true);
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-900 rounded-xl p-6 w-full max-w-md relative text-white">
+    <>
+      <div className="fixed inset-0 bg-black bg-opacity-0 flex items-center justify-center z-50">
+      <div className="bg-gray-900 rounded-xl p-6 w-full max-w-sm relative text-white">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -26,8 +44,9 @@ const EventModal = ({ isOpen, onClose, events, date }) => {
           {events.map((event) => (
             <div
               key={event.id}
-              className="rounded px-3 py-1 text-sm text-white"
+              className="rounded px-3 py-1 text-sm text-white cursor-pointer"
               style={{ backgroundColor: event.color }}
+              onClick={() => isTaskOpen(event)}
             >
               <span className="font-medium">{format(new Date(event.start), 'HH:mm')} </span>
               {event.title}
@@ -36,6 +55,20 @@ const EventModal = ({ isOpen, onClose, events, date }) => {
         </div>
       </div>
     </div>
+
+    <TaskModal
+        isOpen={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
+        event={activeEvent}
+        onEdit={() => openAddEvent(activeEvent)}
+      />
+
+      <AddEvents
+        isOpen={isAddEventsOpen}
+        onClose={() => setIsAddEventsOpen(false)}
+        event={activeEvent}
+      />
+    </>
   );
 };
 
