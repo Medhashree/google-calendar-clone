@@ -31,7 +31,7 @@ const Header = ({ currentDate, setCurrentDate }) => {
           <span className="font-bold text-xl">Calendar</span>
         </div>
         <button
-          className="bg-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-600"
+          className="bg-gray-800 px-3 py-1 rounded text-sm hover:bg-gray-600"
           onClick={handleToday}
         >
           Today

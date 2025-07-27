@@ -1,8 +1,8 @@
-import React from "react";
-import { format } from "date-fns";
-import { X, Pencil, Trash2, Clock } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { deleteEvent } from "../redux/eventsSlice";
+import React from 'react';
+import { format } from 'date-fns';
+import { X, Pencil, Trash2, Clock } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { deleteEvent } from '../redux/eventsSlice';
 
 const TaskModal = ({ isOpen, onClose, event, onEdit }) => {
   const dispatch = useDispatch();
@@ -14,6 +14,9 @@ const TaskModal = ({ isOpen, onClose, event, onEdit }) => {
     onClose();
   };
 
+  const startDate = event.start ? new Date(event.start) : null;
+  const endDate = event.end ? new Date(event.end) : null;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-0 z-50">
       <div className="absolute top-1/4 left-[60%] bg-gray-900 rounded-xl p-6 w-full max-w-md text-white shadow-xl">
@@ -23,7 +26,10 @@ const TaskModal = ({ isOpen, onClose, event, onEdit }) => {
             className="w-5 h-5 text-gray-400 cursor-pointer hover:text-white"
             onClick={onEdit}
           />
-          <Trash2 className="w-5 h-5 text-gray-400 cursor-pointer hover:text-white" onClick={handleDelete} />
+          <Trash2
+            className="w-5 h-5 text-gray-400 cursor-pointer hover:text-white"
+            onClick={handleDelete}
+          />
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white text-xl"
@@ -46,16 +52,17 @@ const TaskModal = ({ isOpen, onClose, event, onEdit }) => {
           </div>
 
           {/* Date and time */}
-          <div className="flex items-start gap-3 text-lg text-gray-300">
-            <Clock className="w-4 h-4 mt-0.5" />
-            <div>
-              <div>{format(new Date(event.start), "EEEE, MMMM d, yyyy")}</div>
-              <div className="text-xs">
-                {format(new Date(event.start), "hh:mm a")} –{" "}
-                {format(new Date(event.end), "hh:mm a")}
+          {startDate && endDate && (
+            <div className="flex items-start gap-3 text-lg text-gray-300">
+              <Clock className="w-4 h-4 mt-0.5" />
+              <div>
+                <div>{format(startDate, 'EEEE, MMMM d, yyyy')}</div>
+                <div className="text-xs">
+                  {format(startDate, 'hh:mm a')} – {format(endDate, 'hh:mm a')}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

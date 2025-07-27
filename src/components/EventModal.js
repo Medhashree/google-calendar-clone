@@ -67,6 +67,7 @@ const EventModal = ({ isOpen, onClose, events, date }) => {
         isOpen={isAddEventsOpen}
         onClose={() => setIsAddEventsOpen(false)}
         event={activeEvent}
+        currentDate={date}
       />
     </>
   );

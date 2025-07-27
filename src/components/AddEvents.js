@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { format, parseISO, isValid } from "date-fns";
 import { X, Trash2, Clock } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { updateEvent, deleteEvent } from "../redux/eventsSlice";
+import { updateEvent, deleteEvent, addEvent } from "../redux/eventsSlice";
 
 const colorOptions = [
   "#3f51b5",
@@ -17,7 +17,7 @@ const colorOptions = [
   "#795548",
 ];
 
-const AddEvents = ({ isOpen, onClose, event }) => {
+const AddEvents = ({ isOpen, onClose, event, currentDate }) => {
   const dispatch = useDispatch();
 
   const [title, setTitle] = useState("");
@@ -27,47 +27,68 @@ const AddEvents = ({ isOpen, onClose, event }) => {
   const [endTime, setEndTime] = useState("");
 
   useEffect(() => {
-    if (!event) return;
+    if(!event) return;
+    const now = new Date();
 
-    const parsedStart = event.start ? new Date(event.start) : new Date();
-    const parsedEnd = event.end ? new Date(event.end) : new Date();
+    if (Object.keys(event).length === 0) {
+      const defaultDate = currentDate || now;
+
+      setTitle("");
+      setDescription("");
+      setSelectedColor("#3f51b5");
+      setStartTime(format(now, "HH:mm"));
+      setEndTime(format(now, "HH:mm"));
+      return;
+    }
+
+    const parsedStart = event.start ? new Date(event.start) : now;
+    const parsedEnd = event.end ? new Date(event.end) : now;
 
     setTitle(event.title || "");
     setDescription(event.description || "");
     setSelectedColor(event.color || "#3f51b5");
+
     setStartTime(
-      isValid(parsedStart)
-        ? format(parsedStart, "HH:mm")
-        : format(new Date(), "HH:mm")
+      isValid(parsedStart) ? format(parsedStart, "HH:mm") : format(now, "HH:mm")
     );
     setEndTime(
-      isValid(parsedEnd)
-        ? format(parsedEnd, "HH:mm")
-        : format(new Date(), "HH:mm")
+      isValid(parsedEnd) ? format(parsedEnd, "HH:mm") : format(now, "HH:mm")
     );
-  }, [event, isOpen]); // Run every time modal opens or event changes
+  }, [event, isOpen, currentDate]); // Run every time modal opens or event changes
 
   if (!isOpen || !event) return null;
 
   const handleSave = () => {
-    const updatedEvent = {
-      ...event,
-      title,
-      description,
-      color: selectedColor,
-      start: format(
-        new Date(event.start).setHours(...startTime.split(":")),
-        "yyyy-MM-dd'T'HH:mm:ss"
-      ),
-      end: format(
-        new Date(event.end).setHours(...endTime.split(":")),
-        "yyyy-MM-dd'T'HH:mm:ss"
-      ),
-    };
+  const isNew = Object.keys(event).length === 0;
 
-    dispatch(updateEvent(updatedEvent));
-    onClose();
+  const baseDate = currentDate || new Date(); // default date
+  const start = new Date(baseDate);
+  const end = new Date(baseDate);
+
+  const [startHours, startMinutes] = startTime.split(":").map(Number);
+  const [endHours, endMinutes] = endTime.split(":").map(Number);
+
+  start.setHours(startHours, startMinutes);
+  end.setHours(endHours, endMinutes);
+
+  const newEvent = {
+    id: isNew ? Date.now().toString() : event.id, // for new events, assign a unique ID
+    title,
+    description,
+    color: selectedColor,
+    start: start.toISOString(),
+    end: end.toISOString(),
   };
+
+  if (isNew) {
+    dispatch(addEvent(newEvent));
+  } else {
+    dispatch(updateEvent(newEvent));
+  }
+
+  onClose();
+};
+
 
   const handleDelete = () => {
     dispatch(deleteEvent(event.id));
@@ -79,7 +100,10 @@ const AddEvents = ({ isOpen, onClose, event }) => {
       <div className="absolute top-1/4 left-[60%] bg-gray-900 rounded-xl p-6 w-full max-w-md text-white shadow-xl">
         {/* Top-right icons row */}
         <div className="flex justify-end items-center gap-4 mb-4">
-          <Trash2 className="w-5 h-5 text-gray-400 cursor-pointer hover:text-white" onClick={handleDelete} />
+          <Trash2
+            className="w-5 h-5 text-gray-400 cursor-pointer hover:text-white"
+            onClick={handleDelete}
+          />
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white text-xl"
@@ -92,6 +116,7 @@ const AddEvents = ({ isOpen, onClose, event }) => {
         <input
           type="text"
           value={title}
+          placeholder="Add title and time"
           onChange={(e) => setTitle(e.target.value)}
           className="w-full text-xl bg-transparent border-b border-gray-600 outline-none mb-6 placeholder-gray-400"
         />
@@ -101,7 +126,12 @@ const AddEvents = ({ isOpen, onClose, event }) => {
           <Clock className="w-4 h-4" />
           <div className="flex items-center gap-3">
             <div className="px-3 py-1 bg-gray-800 rounded text-sm">
-              {format(new Date(event.start), "LLL d, yyyy")}
+              {format(
+                isValid(new Date(event?.start))
+                  ? new Date(event.start)
+                  : currentDate || new Date(),
+                "LLL d, yyyy"
+              )}
             </div>
             <input
               type="time"

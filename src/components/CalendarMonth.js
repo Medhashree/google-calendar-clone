@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   startOfMonth,
   endOfMonth,
@@ -6,13 +6,14 @@ import {
   endOfWeek,
   addDays,
   isSameMonth,
-  isAfter,
-  isBefore,
-  lastDayOfMonth
 } from 'date-fns';
+import { useSelector } from 'react-redux';
 import DayCell from './DayCell';
 
 const CalendarMonth = ({ currentDate }) => {
+  // This will cause CalendarMonth to re-render on events state change
+  const events = useSelector((state) => state.events);
+
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
 
